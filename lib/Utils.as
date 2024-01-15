@@ -96,15 +96,17 @@ bool IsServer() {
 */
 void InitPlugin() {
      Json::Value data = ModWorkLoading::GetList();
-     array<string> materials = data["materials"].GetKeys();
-     Json::Value selectedModWorksJ = Json::Parse(selectedModWorks);
-     for(uint i = 0; i< materials.Length; i++) {
-        if(!selectedModWorksJ.HasKey(materials[i])) {
-            auto presets = data["materials"][materials[i]]["presets"].GetKeys();
-            presets.SortAsc();
-            selectedModWorksJ[materials[i]] = presets[0];
-            ModWorkLoading::ApplyTexture(textureQuality, materials[i], presets[0], data["materials"][materials[i]]["presets"][presets[0]]["files"]);
+     if(data.Length > 0) {
+        array<string> materials = data["materials"].GetKeys();
+        Json::Value selectedModWorksJ = Json::Parse(selectedModWorks);
+        for(uint i = 0; i< materials.Length; i++) {
+            if(!selectedModWorksJ.HasKey(materials[i])) {
+                auto presets = data["materials"][materials[i]]["presets"].GetKeys();
+                presets.SortAsc();
+                selectedModWorksJ[materials[i]] = presets[0];
+                ModWorkLoading::ApplyTexture(textureQuality, materials[i], presets[0], data["materials"][materials[i]]["presets"][presets[0]]["files"]);
+            }
         }
+        selectedModWorks = Json::Write(selectedModWorksJ);
      }
-     selectedModWorks = Json::Write(selectedModWorksJ);
 }
