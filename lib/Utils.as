@@ -110,3 +110,12 @@ void InitPlugin() {
         selectedModWorks = Json::Write(selectedModWorksJ);
      }
 }
+/*
+    Method to automatically disable a button when ModWork is loading
+*/
+bool DynamicButton(const string&in label, const vec2&in size = vec2 ( )) {
+    UI::BeginDisabled(ModWorkLoading::displayModWorkLoading);
+    auto button = UI::Button(label, size);
+    UI::EndDisabled();
+    return button;
+}

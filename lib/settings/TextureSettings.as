@@ -14,7 +14,7 @@ namespace TextureSettings {
       }
       if(ModWorkLoading::list.Length > 0) {
         ModWorkLoading::reloadModWorkPictures = true;
-        if(UI::Button("Apply all##textures")) {
+        if(DynamicButton("Apply all##textures")) {
             enablePlugin = true;
             textureQuality = selectedQuality;
             ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
@@ -37,7 +37,7 @@ namespace TextureSettings {
                 UI::EndCombo();
         }
         UI::TableNextColumn();
-        if(UI::Button("Apply##textureQuality")) {
+        if(DynamicButton("Apply##textureQuality")) {
             enablePlugin = true;
             textureQuality = selectedQuality;
             ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
@@ -54,14 +54,16 @@ namespace TextureSettings {
             UI::TableNextRow();
             UI::TableNextColumn();
             UI::Text(materialsList[i]);
-            auto presetsAvailable = ModWorkLoading::list["materials"][materialsList[i]]["presets"].GetKeys();
-            presetsAvailable.SortAsc();
+            auto presetsKeyAvailable = ModWorkLoading::list["materials"][materialsList[i]]["presets"].GetKeys();
+            presetsKeyAvailable.SortAsc();
+            auto presetsAvailable = ModWorkLoading::list["materials"][materialsList[i]]["presets"];
             UI::TableNextRow();
             UI::TableNextColumn();
-            if (UI::BeginCombo("##texturePreset"+materialsList[i], presets[materialsList[i]])) {
-                for (uint j = 0; j < presetsAvailable.Length; j++) {
-                    string preset = presetsAvailable[j];
-                    if(UI::Selectable(preset, preset == presets[materialsList[i]])) {
+            string currentPreset = presets[materialsList[i]];
+            if (UI::BeginCombo("##texturePreset"+materialsList[i], presetsAvailable[currentPreset]["name"])) {
+                for (uint j = 0; j < presetsKeyAvailable.Length; j++) {
+                    string preset = presetsKeyAvailable[j];
+                    if(UI::Selectable(presetsAvailable[preset]["name"], preset == presets[materialsList[i]])) {
                         presets[materialsList[i]] = preset;
                     }
                 }
@@ -70,7 +72,7 @@ namespace TextureSettings {
             UI::TableNextRow();
             UI::TableNextColumn();
             
-            if(UI::Button("Apply##"+materialsList[i])) {
+            if(DynamicButton("Apply##"+materialsList[i])) {
                 enablePlugin = true;
                 ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
                 auto currentModWorks = Json::Parse(selectedModWorks);
@@ -84,7 +86,7 @@ namespace TextureSettings {
                 CachedImage@ cachedImage = null;
                 thumbs.Get(materialsList[i], @cachedImage);
                 if(cachedImage.m_texture !is null) {
-                    UI::Image(cachedImage.m_texture);
+                    UI::Image(cachedImage.m_texture, vec2(200,200));
                 }
             }
             UI::EndTable();
