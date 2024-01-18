@@ -182,92 +182,16 @@ void setMinWidth(int width) {
 }
 
 
-
-// Credits to AR__ https://github.com/st-AR-gazer/_Patch-Warner
-class GbxHeaderChunkInfo
-{
-    int ChunkId;
-    int ChunkSize;
-}
-
-string GetExeBuildFromXML() {
-    string xmlString = "";
-    string exeBuild = "2024-01-01";
-
-    trace("GetExeBuildFromXML function started.");
-
-    CSystemFidFile@ fidFile = cast<CSystemFidFile>(GetApp().RootMap.MapInfo.Fid);
-
-    if (fidFile !is null)
-    {
-        try
-        {
-            trace("Opening map file.");
-            IO::File mapFile(fidFile.FullFileName);
-            mapFile.Open(IO::FileMode::Read);
-
-            mapFile.SetPos(17);
-            int headerChunkCount = mapFile.Read(4).ReadInt32();
-            trace("Header chunk count: " + headerChunkCount);
-
-            GbxHeaderChunkInfo[] chunks = {};
-            for (int i = 0; i < headerChunkCount; i++)
-            {
-                GbxHeaderChunkInfo newChunk;
-                newChunk.ChunkId = mapFile.Read(4).ReadInt32();
-                newChunk.ChunkSize = mapFile.Read(4).ReadInt32() & 0x7FFFFFFF;
-                chunks.InsertLast(newChunk);
-                trace("Read chunk " + i + " with id " + newChunk.ChunkId + " and size " + newChunk.ChunkSize);
-            }
-
-            for (uint i = 0; i < chunks.Length; i++)
-            {
-                MemoryBuffer chunkBuffer = mapFile.Read(chunks[i].ChunkSize);
-                if (chunks[i].ChunkId == 50606085) {
-                    int stringLength = chunkBuffer.ReadInt32();
-                    xmlString = chunkBuffer.ReadString(stringLength);
-                    break;
-                }
-                trace("Read chunk " + i + " of size " + chunks[i].ChunkSize);
-            }
-
-            mapFile.Close();
-
-
-            if (xmlString != "") {
-                XML::Document doc;
-                doc.LoadString(xmlString);
-                XML::Node headerNode = doc.Root().FirstChild();
-                
-                if (headerNode) {
-                    string potentialExeBuild = headerNode.Attribute("exebuild");
-                    if (potentialExeBuild != "") {
-                        exeBuild = potentialExeBuild;
-                    } else {
-                        warn("Exe build not found in XML. Assuming a new map.");
-                        return "2024-01-01";
-                    }
-                } else {
-                    warn("headerNode is invalid in GetExeBuildFromXML.");
-                }
-
-            }
-            warn("GetExeBuildFromXML function finished.");
-        }
-        catch
-        {
-            warn("Error reading map file in GetExeBuildFromXML.");
-        }
+string GetExeBuildDate() {
+    try  {
+        return Dev::GetOffsetString(GetApp().RootMap, 0x78).Split("_")[0].Split("=")[1];
+    } catch {
+        return "2024-01-01";
     }
-    else
-    {
-        warn("fidFile is null in GetExeBuildFromXML.");
-    }
-    return exeBuild.Split("_")[0];
 }
 
 bool IsOldWood() {
-    const string exeBuild = GetExeBuildFromXML().Replace("-", "");
+    const string exeBuild = GetExeBuildDate().Replace("-", "");
     const int var = Text::ParseInt(exeBuild);
     return (var < 20231115);
 }
