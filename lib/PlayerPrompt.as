@@ -4,7 +4,7 @@ namespace PlayerPrompt {
       if(isActive) {
         UI::TextWrapped("This map uses a custom mod. It is currently disabled, do you want to enable it ?\nKeep in mind it will also disable every custom ModWork (such as Custom Skids).");
       } else {
-        UI::TextWrapped("This map uses a custom mod. It is currently enabled, do you want to keep it enabled ?\nKeep in mind it will also disable every custom ModWork (such as Custom Skids)."); 
+        UI::TextWrapped("This map uses a custom mod. It is currently enabled, do you want to keep it enabled ?\nKeep in mind it will also keep disabled every custom ModWork (such as Custom Skids)."); 
       }
       UI::BeginTable("playerPrompt", 4, UI::TableFlags::SizingFixedFit);
       UI::TableNextRow();

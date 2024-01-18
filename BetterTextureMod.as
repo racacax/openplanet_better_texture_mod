@@ -38,7 +38,7 @@ void Main() {
 void Render() {
 	// Plugin can display 3 views in total
 	if(PlayerPrompt::displayPlayerPrompt || RestartPrompt::displayRestartPrompt || ModWorkLoading::displayModWorkLoading) {
-		UI::Begin("Better Texture Mod", UI::WindowFlags::AlwaysAutoResize);
+		UI::Begin("Better Texture Mod", UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoCollapse);
 		// This view asks if the player want to enable/disable plugin on a map with an already custom mod
 		if(PlayerPrompt::displayPlayerPrompt) {
 			PlayerPrompt::Render();
@@ -52,5 +52,27 @@ void Render() {
 			ModWorkLoading::Render();
 		}
 		UI::End();
+	}
+
+	// Render the settings in a different window
+	if(togglePlugin && UI::Begin("Better Texture Mod - Settings", togglePlugin, UI::WindowFlags::NoCollapse)) {	
+		UI::BeginTabBar("betterTextureModSettings");
+		if(UI::BeginTabItem(Icons::PaintBrush + " Textures##betterTextureMod")) {
+			TextureSettings::RenderSettings();
+			UI::EndTabItem();
+		}
+		if(UI::BeginTabItem(Icons::ListAlt + " Advanced##betterTextureMod")) {
+			AdvancedSettings::RenderSettings();
+			UI::EndTabItem();
+		}
+		UI::EndTabBar();
+		UI::End();
+	}
+}
+
+void RenderMenu()
+{
+	if (UI::MenuItem("\\$9cf" + Icons::PaintBrush + "\\$z Better Texture Mod", "", togglePlugin)) {
+		togglePlugin = !togglePlugin;
 	}
 }
