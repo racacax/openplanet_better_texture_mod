@@ -184,7 +184,8 @@ void setMinWidth(int width) {
 
 string GetExeBuildDate() {
     try  {
-        return Dev::GetOffsetString(GetApp().RootMap, 0x78).Split("_")[0].Split("=")[1];
+        int offset = ModWorkLoading::list["offset"];
+        return Dev::GetOffsetString(GetApp().RootMap, offset).Split("_")[0].Split("=")[1];
     } catch {
         return "2024-01-01";
     }
