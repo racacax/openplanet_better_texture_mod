@@ -76,7 +76,7 @@ void CheckCurrentMap() {
             bool isOldWood = IsOldWood();
             if(woodTexture == "unset" || (isOldWood && woodTexture == "new") || (!isOldWood && woodTexture == "old")) {
                 ManageWoodTextures(isOldWood);
-                woodTexture = (IsOldWood() ? "old" : "new");
+                woodTexture = (isOldWood ? "old" : "new");
             }
         }
     } else {
