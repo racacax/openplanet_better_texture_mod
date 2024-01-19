@@ -181,11 +181,37 @@ void setMinWidth(int width) {
 	UI::PopStyleVar();
 }
 
+/*
+    Credits : XertroV for all the ExeBuild code
+*/
+
+uint16 GetOffset(const string &in className, const string &in memberName) {
+    // throw exception when something goes wrong.
+    auto ty = Reflection::GetType(className);
+    auto memberTy = ty.GetMember(memberName);
+    if (memberTy.Offset == 0xFFFF) throw("Invalid offset: 0xFFFF");
+    return memberTy.Offset;
+}
+
+bool PointerLooksOkay(uint64 ptr, bool aligned = true) {
+    return ptr < 0x03ffddddeeee && ptr > 0x00ffddddeeee
+    && (!aligned || (aligned && ptr & 0x7 == 0));
+}
+
+const uint16 O_MAP_TITLEID = GetOffset("CGameCtnChallenge", "TitleId");
+const uint16 O_MAP_BUILDINFO_STR = O_MAP_TITLEID + 0x4;
+
+// example: date=2024-01-10_12_53 git=126731-1573de4d161 GameVersion=3.3.0
+// const uint32 ExpectedBuildVersionLength = 62;
 
 string GetExeBuildDate() {
     try  {
-        int offset = ModWorkLoading::list["offset"];
-        return Dev::GetOffsetString(GetApp().RootMap, offset).Split("_")[0].Split("=")[1];
+        auto map = GetApp().RootMap;
+        auto strPtr = Dev::GetOffsetUint64(map, O_MAP_BUILDINFO_STR);
+        auto strLen = Dev::GetOffsetUint32(map, O_MAP_BUILDINFO_STR + 0xC);
+        // Check the length is what we expect, with some tolerance, and that the pointer looks valid. String pointers aren't necessarily aligned.
+        if (strLen < 50 || strLen > 75 || !PointerLooksOkay(strPtr, false)) return "2024-01-01";
+        return Dev::GetOffsetString(map, O_MAP_BUILDINFO_STR).Split("_")[0].Split("=")[1];
     } catch {
         return "2024-01-01";
     }
