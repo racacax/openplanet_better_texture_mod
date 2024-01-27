@@ -64,13 +64,22 @@ void CheckCurrentMap() {
                 }
                 if(preference == "apply_modwork" && !isActive) {
                     EnableModwork();
+                    if(enableDoubleLoading) {
+                        MapLoading::ReloadMap();
+                    }
                 }
                 if(preference == "disable_modwork" && isActive) {
                     DisableModWork();
+                    if(enableDoubleLoading) {
+                        MapLoading::ReloadMap();
+                    }
                 }
             } else {
                 if(!isActive) {
                     EnableModwork();
+                    if(enableDoubleLoading) {
+                        MapLoading::ReloadMap();
+                    }
                 }
             }
             bool isOldWood = IsOldWood();

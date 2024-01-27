@@ -64,7 +64,7 @@ namespace ModWorkLoading {
     */
     Json::Value GetList() {
         if(list.Length == 0) {
-            auto listTmp = API::GetAsyncJson(BASE_URL + "json/1.0.0.json");
+            auto listTmp = API::GetAsyncJson(BASE_URL + "json/1.0.1.json");
             if(listTmp.GetType() != Json::Type::Object) {
                 error("Error while connecting to the API");
                 UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Error", "An unexpected error occured while fetching the API. Try reloading the plugin. If the error persists, open an issue or DM racacax on Discord", UI::HSV(1.0, 1.0, 1.0), 16000);

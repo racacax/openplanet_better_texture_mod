@@ -4,6 +4,9 @@ bool enablePlugin = true;
 [Setting category="Main" name="Enable notifications" description="If enabled, you will be notified on startup when new textures/presets are released."]
 bool enableNotifications = true;
 
+[Setting category="Main" name="Enable double loading" description="Sometimes ModWork isn't disabled/enabled fast enough, so textures appear black. Reloading the map/rejoining the server just after will fix the issue."]
+bool enableDoubleLoading = false;
+
 [Setting category="Main" hidden]
 string listSignature = "";
 
