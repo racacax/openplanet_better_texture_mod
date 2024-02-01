@@ -42,6 +42,15 @@ void MoveFolder(const string &in from, const string &in to) {
    IO::DeleteFolder(from);
 }
 
+void CopyFile(const string &in from, const string &in to) {
+    IO::File fromFile(from, IO::FileMode::Read);
+    IO::File toFile(to, IO::FileMode::Write);
+    while (!fromFile.EOF()) {
+        toFile.Write(fromFile.Read(1 << 10));
+    }
+    toFile.Flush();
+}
+
 /*
     Either get the ModWork or ModWorkDisabled folder depending of plugin status
 */

@@ -1,5 +1,4 @@
 namespace ModWorkLoading {
-    const string BASE_URL = "https://bettertexturemod.racacax.fr/";
     bool displayModWorkLoading = false;
     string currentMaterial = "";
     string currentFile = "";
@@ -79,7 +78,10 @@ namespace ModWorkLoading {
         Download texture file and putting it in the ModWork folder
     */
     void DownloadTexture(const string &in quality, const string &in material, const string &in preset, const string &in file) {
-        API::GetAsync(BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file).SaveToFile(GetCurrentFolder() + "/" + file);
+        string cachedFile = API::GetCachedAsync(
+            BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file);
+
+        CopyFile(cachedFile, GetCurrentFolder() + "/" + file);
     }
 
     /*

@@ -1,6 +1,10 @@
-const auto MODWORK_FOLDER = IO::FromUserGameFolder("Skins\\Stadium\\ModWork");
+const string BASE_URL = "https://bettertexturemod.racacax.fr/";
 
-const auto MODWORK_DISABLED_FOLDER = IO::FromUserGameFolder("Skins\\Stadium\\ModWorkDisabled");
+const string MODWORK_FOLDER = IO::FromUserGameFolder("Skins\\Stadium\\ModWork");
+
+const string MODWORK_DISABLED_FOLDER = IO::FromUserGameFolder("Skins\\Stadium\\ModWorkDisabled");
+
+const string CACHE_FOLDER = IO::FromStorageFolder("Cache");
 
 const Json::Value CHOICES = Json::Parse('{"disable_modwork": "Yes, always", "apply_modwork" : "No, never", "unset": "Ask me everytime"}');
 
