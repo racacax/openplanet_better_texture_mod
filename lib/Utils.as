@@ -166,15 +166,6 @@ void InitPlugin() {
         TextureSettings::presets = Json::Array(); // if new materials are added, TextureSettings presets needs to be refreshed
      }
 }
-/*
-    Method to automatically disable a button when ModWork is loading
-*/
-bool DynamicButton(const string&in label, const vec2&in size = vec2 ( )) {
-    UI::BeginDisabled(ModWorkLoading::displayModWorkLoading);
-    auto button = UI::Button(label, size);
-    UI::EndDisabled();
-    return button;
-}
 
 /* Delete all textures which have "Default" as a setting (need full game restart) */
 void DeleteDefaultTextures() {
@@ -191,6 +182,11 @@ void DeleteDefaultTextures() {
         }
         selectedModWorks = Json::Write(selectedModWorksJ);
      }
+}
+
+/* Delete all textures in the plugin Cache storage */
+void DeleteCachedTextures() {
+     IO::DeleteFolder(CACHE_FOLDER, true);
 }
 
 void setMinWidth(int width) {
