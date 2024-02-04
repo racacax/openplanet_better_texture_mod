@@ -6,14 +6,8 @@ class CachedImage
 
 	void DownloadFromURLAsync()
 	{
-		auto req = Net::HttpRequest();
-		req.Method = Net::HttpMethod::Get;
-		req.Url = m_url;
-		req.Start();
-		while (!req.Finished()) {
-			yield();
-		}
-		@m_texture = UI::LoadTexture(req.Buffer());
+		IO::File image(API::GetCachedAsync(m_url), IO::FileMode::Read);
+		@m_texture = UI::LoadTexture(image.Read(image.Size()));
 		if (m_texture.GetSize().x == 0) {
 			@m_texture = null;
 		}
