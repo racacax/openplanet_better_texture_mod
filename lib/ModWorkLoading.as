@@ -1,5 +1,4 @@
 namespace ModWorkLoading {
-    const string BASE_URL = "https://bettertexturemod.racacax.fr/";
     bool displayModWorkLoading = false;
     string currentMaterial = "";
     string currentFile = "";
@@ -32,11 +31,12 @@ namespace ModWorkLoading {
         }
         auto currentSettings = Json::Parse(selectedModWorks);
         auto keys = currentSettings.GetKeys();
-        for(uint i = 0; i<keys.Length; i++) {
+        auto length = keys.Length;
+        for(uint i = 0; i<length; i++) {
             string material = keys[i];
             string preset = currentSettings[keys[i]];
             auto files = list["materials"][material]["presets"][preset]["files"];
-            ApplyTexture(textureQuality, material, preset, files);
+            ApplyTexture(textureQuality, material, preset, files, i == length - 1);
         }
     }
 
@@ -64,7 +64,7 @@ namespace ModWorkLoading {
     */
     Json::Value GetList() {
         if(list.Length == 0) {
-            auto listTmp = API::GetAsyncJson(BASE_URL + "json/1.0.1.json");
+            auto listTmp = API::GetAsyncJson(BASE_URL + "json/1.1.0.json");
             if(listTmp.GetType() != Json::Type::Object) {
                 error("Error while connecting to the API");
                 UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Error", "An unexpected error occured while fetching the API. Try reloading the plugin. If the error persists, open an issue or DM racacax on Discord", UI::HSV(1.0, 1.0, 1.0), 16000);
@@ -79,13 +79,16 @@ namespace ModWorkLoading {
         Download texture file and putting it in the ModWork folder
     */
     void DownloadTexture(const string &in quality, const string &in material, const string &in preset, const string &in file) {
-        API::GetAsync(BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file).SaveToFile(GetCurrentFolder() + "/" + file);
+        string cachedFile = API::GetCachedAsync(
+            BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file);
+
+        CopyFile(cachedFile, GetCurrentFolder() + "/" + file);
     }
 
     /*
         Download all files related to material and apply them by putting them in the ModWork folder
     */
-    void ApplyTexture(const string &in quality, const string &in material, const string &in preset, Json::Value files) {
+    void ApplyTexture(const string &in quality, const string &in material, const string &in preset, Json::Value files, bool changeRestartPromptStatus = true) {
         displayModWorkLoading = true;
         total = files.Length;
         currentMaterial = material; 
@@ -115,7 +118,7 @@ namespace ModWorkLoading {
         displayModWorkLoading = false;
         
         auto app = cast<CTrackMania>(GetApp());
-        if(app.RootMap !is null) {
+        if(app.RootMap !is null && changeRestartPromptStatus) {
             RestartPrompt::displayRestartPrompt = true;
         }
     }
@@ -130,7 +133,7 @@ namespace ModWorkLoading {
             const string path = GetCurrentFolder() + "/" + fileName;
             if(IO::FileExists(path)) {
                 if(withAlerts) {
-                  UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Texture deleted", fileName + " has been deleted.", UI::HSV(0.51, 0.26, 0.9), 8000);  
+                  UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Texture deleted", fileName + " has been deleted.", UI::HSV(0.51, 0.69, 0.9), 8000);  
                 }
                 IO::Delete(path);
                 hasDeletedTextures = true; // Notify there were indeed previous textures

@@ -55,18 +55,21 @@ void Render() {
 	}
 
 	// Render the settings in a different window
-	if(togglePlugin && UI::Begin("Better Texture Mod - Settings", togglePlugin, UI::WindowFlags::NoCollapse)) {	
-		UI::BeginTabBar("betterTextureModSettings");
-		if(UI::BeginTabItem(Icons::PaintBrush + " Textures##betterTextureMod")) {
-			TextureSettings::RenderSettings();
-			UI::EndTabItem();
+	if(togglePlugin) {
+		UI::SetNextWindowSize(600, 600);
+		if(UI::Begin("Better Texture Mod - Settings", togglePlugin, UI::WindowFlags::NoCollapse)) {	
+			UI::BeginTabBar("betterTextureModSettings");
+			if(UI::BeginTabItem(Icons::PaintBrush + " Textures##betterTextureMod")) {
+				TextureSettings::RenderSettings();
+				UI::EndTabItem();
+			}
+			if(UI::BeginTabItem(Icons::ListAlt + " Advanced##betterTextureMod")) {
+				AdvancedSettings::RenderSettings();
+				UI::EndTabItem();
+			}
+			UI::EndTabBar();
+			UI::End();
 		}
-		if(UI::BeginTabItem(Icons::ListAlt + " Advanced##betterTextureMod")) {
-			AdvancedSettings::RenderSettings();
-			UI::EndTabItem();
-		}
-		UI::EndTabBar();
-		UI::End();
 	}
 }
 
