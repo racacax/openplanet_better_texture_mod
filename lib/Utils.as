@@ -84,6 +84,7 @@ void CheckCurrentMap() {
                     }
                 }
             } else {
+                PlayerPrompt::displayPlayerPrompt = false;
                 if(!isActive) {
                     EnableModwork();
                     if(enableDoubleLoading) {
@@ -99,6 +100,7 @@ void CheckCurrentMap() {
         }
     } else {
         currentMap = "";
+        PlayerPrompt::displayPlayerPrompt = false;
     }
 }
 
