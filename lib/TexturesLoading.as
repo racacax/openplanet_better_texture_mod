@@ -140,7 +140,7 @@ namespace TexturesLoading {
         auto app = cast<CTrackMania>(GetApp());
         if(app.RootMap !is null && changeRestartPromptStatus) {
             RestartPrompt::displayRestartPrompt = true && !isSilent;
-        } else if(!isSilent) {  
+        } else if(!isSilent && modMethod == "Modless") {  
             startnew(ModlessManager::ReloadMap);
         }
         
