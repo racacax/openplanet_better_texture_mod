@@ -110,7 +110,7 @@ namespace TexturesLoading {
             currentFile = string(files[i]);
             const string path = ModWorkManager::GetCurrentFolder() + "/" + currentFile;
             // If preset is Default, we don't download any texture, unless custom textures were applied before
-            if(!isSilent || preset != "Default" || hasPreviousTextures.Find(material) > -1) {
+            if((preset != "Default" || modMethod == "Modless") || hasPreviousTextures.Find(material) > -1) {
                 if(modMethod == "ModWork") {
                     IO::Delete(path);
                 }
