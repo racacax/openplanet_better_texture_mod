@@ -13,3 +13,5 @@ const Json::Value CHOICES_KEYS = CHOICES.GetKeys();
 const Json::Value CHOICES_FOR_MAP = Json::Parse('{"disable_modwork": "Yes", "apply_modwork" : "No", "unset": "Ask me"}');
 
 const Json::Value CHOICES_FOR_MAP_KEYS = CHOICES_FOR_MAP.GetKeys();
+
+array<string> MOD_METHODS = {"Modless", "Modwork"};

@@ -6,7 +6,11 @@ namespace RestartPrompt {
       UI::TableNextRow();
       UI::TableNextColumn();
       if(UI::Button("Yes")) {
-        MapLoading::reloadMap = true;
+        if(modMethod == "Modless") {
+          startnew(ModlessManager::ReloadMap);
+        } else {
+          MapLoading::reloadMap = true;
+        }
         displayRestartPrompt = false;
       }
       UI::TableNextColumn();

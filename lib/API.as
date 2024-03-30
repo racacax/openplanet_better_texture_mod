@@ -26,7 +26,7 @@ namespace API
         return req;
     }
 
-    string GetCachedAsync(const string &in url) {
+    string GetCachedAsync(const string &in url, bool useCacheOnly = false) {
         if (!url.StartsWith(BASE_URL)) {
             error("Requested a URL that is not relative to '" + BASE_URL + "'!");
             return "";
@@ -34,6 +34,13 @@ namespace API
 
         string cachePath = CACHE_FOLDER + "/" + url.SubStr(BASE_URL.Length);
         bool exists = IO::FileExists(cachePath);
+        if(useCacheOnly) { // useCacheOnly is used when applying textures on boot. We don't want to fetch any data without user prompt.
+            if(exists) {
+                return cachePath;
+            } else {
+                return "";
+            }
+        }
         uint64 modifiedSince = exists ? IO::FileModifiedTime(cachePath) : 0;
 
         Net::HttpRequest@ req = GetAsync(url, modifiedSince);
