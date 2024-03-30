@@ -28,7 +28,6 @@ namespace ModWorkManager {
         if(isWaitingForReload) { // avoid to run multiple threads
             return ;
         }
-        isWaitingForReload = true;
         string currentMapUid = GetMapUid();
         while(IsInAMap()) { 
             if(currentMapUid != GetMapUid()) {
@@ -37,11 +36,12 @@ namespace ModWorkManager {
             yield();
         }
         while(!IsInAMap()) { yield(); }
-        if(currentMapUid == GetMapUid()) {
+        if(currentMapUid == GetMapUid() && !isWaitingForReload) {
+            isWaitingForReload = true;
             DisableModWork();
             MapLoading::ReloadMap();
+            isWaitingForReload = false;
         }
-        isWaitingForReload = false;
 
     }
 
