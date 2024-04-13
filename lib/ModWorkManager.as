@@ -61,7 +61,8 @@ namespace ModWorkManager {
                     if(preference == "apply_modwork" && !isActive) {
                         EnableModwork();
                         if(enableDoubleLoading) {    
-                            MapLoading::ReloadMap();
+                            MapLoading::reloadMap = true;
+                            return;
                         } else {
                             if(showReloadWarning) {
                                 UI::ShowNotification("Better Texture Mod - Reload required", 
@@ -72,8 +73,9 @@ namespace ModWorkManager {
                     }
                     if(preference == "disable_modwork" && isActive) {
                         if(enableDoubleLoading) {
-                            MapLoading::ReloadMap();
+                            MapLoading::reloadMap = true;
                             DisableModWork();
+                            return;
                         } else {
                             startnew(DisableIfReloadingSameMap);
                             if(showReloadWarning) {
@@ -88,7 +90,8 @@ namespace ModWorkManager {
                     if(!isActive) {
                         EnableModwork();
                         if(enableDoubleLoading) {
-                            MapLoading::ReloadMap();
+                            MapLoading::reloadMap = true;
+                            return;
                         } else {
                             if(showReloadWarning) {
                                 UI::ShowNotification("Better Texture Mod - Reload required", 
@@ -107,6 +110,15 @@ namespace ModWorkManager {
         } else {
             currentMap = "";
             PlayerPrompt::displayPlayerPrompt = false;
+        }
+    }
+
+
+    void CheckCurrentMapAndReload() {
+        currentMap = "";
+        while(currentMap == "") { yield(); } // Waiting for CheckCurrentMap to be called in the main thread
+        if(!enableDoubleLoading) {
+            MapLoading::reloadMap = true;
         }
     }
 

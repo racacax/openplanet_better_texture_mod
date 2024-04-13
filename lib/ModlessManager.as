@@ -3,17 +3,25 @@ namespace ModlessManager {
 
     bool hasLoadedFids = false;
     bool isReloadingMap = false;
+    dictionary defaultTextures;
+    const string GAME_FID_PATH = "GameData/Stadium/Media/Texture/Image/";
+
 
     /*
         Allow to load a fid corresponding to the texture file requested (ex : RoadIce_D.dds)
     */
     CSystemFidFile@ GetGameFid(const string &in file) {
-        auto textureGameFid = Fids::GetGame("GameData/Stadium/Media/Texture/Image/" + file);
+        const string finalPath = GAME_FID_PATH + file;
+        auto textureGameFid = Fids::GetGame(finalPath);
 
         if (textureGameFid.Nod is null) {
             Fids::Preload(textureGameFid);
             if (textureGameFid.Nod !is null) {
                 textureGameFid.Nod.MwAddRef();
+                
+                if (!defaultTextures.Exists(finalPath)) {
+                    @defaultTextures[finalPath] = cast<CPlugFileDds>(textureGameFid.Nod);
+                }
             }
         }
         return textureGameFid;
@@ -112,5 +120,22 @@ namespace ModlessManager {
             }
         }
         isReloadingMap = false;
+    }
+
+    void RestoreDefaultTextures() {
+        if(!IsInAMap()) {
+            array<string> texturesKeys = defaultTextures.GetKeys();
+            for (uint i = 0; i < texturesKeys.Length; i++) {
+                const string path = texturesKeys[i];
+                auto fid = Fids::GetGame(path);
+                SetFidNod(fid, cast<CMwNod>(defaultTextures[path]));
+                warn("Restoring "+ path + "...");
+            }
+            UI::ShowNotification("Better Texture Mod - Restoring textures", 
+            "If some textures are not restored properly, you might need to load an empty map or restart the game completly.");
+        } else {
+            UI::ShowNotification("Better Texture Mod - Cannot restore textures", 
+            "You are currently in a map so it is not safe to restore textures back to default.");
+        }
     }
 }

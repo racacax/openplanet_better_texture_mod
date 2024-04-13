@@ -9,7 +9,7 @@ namespace RestartPrompt {
         if(modMethod == "Modless") {
           startnew(ModlessManager::ReloadMap);
         } else {
-          MapLoading::reloadMap = true;
+          startnew(ModWorkManager::CheckCurrentMapAndReload);
         }
         displayRestartPrompt = false;
       }

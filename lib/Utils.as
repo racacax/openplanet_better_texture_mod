@@ -74,6 +74,9 @@ bool IsServer() {
     Init plugin for first start or if new textures have been published. 
 */
 void InitPlugin() {
+    if(enablePlugin) {
+        ModWorkManager::EnableModwork();
+    }
      Json::Value data = TexturesLoading::GetList();
      if(modMethod == "Modless" && ModWorkManager::IsModWorkBTMOnly()) { // Might happen if we apply textures and then not go into a map before closing the game
         IO::DeleteFolder(MODWORK_FOLDER, true);

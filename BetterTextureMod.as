@@ -101,3 +101,20 @@ void RenderMenu()
 		togglePlugin = !togglePlugin;
 	}
 }
+
+
+void OnDestroyed() { 
+	if(modMethod == "Modless") {
+		ModlessManager::RestoreDefaultTextures();
+	} else {
+		if(ModWorkManager::IsModWorkBTMOnly()) {
+			ModWorkManager::DisableModWork(); // If plugin is disabled/uninstalled, we disable ModWork to prevent people being stuck with custom textures
+		} else {
+			// If the ModWork folder contains anything else than plugin textures (such as skids), we don't disable
+			UI::ShowNotification("Better Texture Mod - Disabling textures", "ModWork folder contains other files than plugin textures. To prevent any loss, it has been kept.");
+		}
+	}
+}
+void OnDisabled() {
+	OnDestroyed();
+ }
