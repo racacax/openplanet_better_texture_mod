@@ -13,18 +13,23 @@ namespace TextureSettings {
       if(presets.Length == 0) {
         presets = Json::Parse(selectedModWorks);
       }
-      if(ModWorkLoading::list.Length > 0) {
+      if(TexturesLoading::list.Length > 0) {
         if(selectedGroup == "")
         {
-            selectedGroup = ModWorkLoading::list["groups"][1];
+            selectedGroup = TexturesLoading::list["groups"][0];
         }
-        ModWorkLoading::reloadModWorkPictures = true;
+        TexturesLoading::reloadModWorkPictures = true;
+        if(!IsSafeToApply()) {
+            UI::TextWrapped(ColoredString("$F93" + Icons::ExclamationTriangle + 
+            " As a safety measure, you cannot apply textures while in a map if you use the Modless method. "
+            "Leave the map to change textures."));
+        }
         if(DynamicButton("Apply all##textures")) {
             enablePlugin = true;
             textureQuality = selectedQuality;
-            ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
+            TexturesLoading::oldSettings = Json::Parse(selectedModWorks);
             selectedModWorks = Json::Write(presets);
-            ModWorkLoading::updateAll = true;
+            TexturesLoading::updateAll = true;
         }
 
         UI::BeginTable("textureQuality", 3, UI::TableFlags::SizingFixedSame);
@@ -32,7 +37,7 @@ namespace TextureSettings {
         UI::TableNextColumn();
         UI::Text("Texture Quality");
         UI::TableNextColumn();
-        const auto qualities = ModWorkLoading::list["qualities"];
+        const auto qualities = TexturesLoading::list["qualities"];
         if (UI::BeginCombo("##textureQuality", selectedQuality)) {
                 for (uint i = 0; i < qualities.Length; i++) {
                     string quality = qualities[i];
@@ -46,8 +51,8 @@ namespace TextureSettings {
         if(DynamicButton("Apply##textureQuality")) {
             enablePlugin = true;
             textureQuality = selectedQuality;
-            ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
-            ModWorkLoading::updateAll = true;
+            TexturesLoading::oldSettings = Json::Parse(selectedModWorks);
+            TexturesLoading::updateAll = true;
         }
         UI::EndTable();
 
@@ -56,7 +61,7 @@ namespace TextureSettings {
         UI::TableNextColumn();
         UI::Text("Group");
         UI::TableNextColumn();
-        const auto groups = ModWorkLoading::list["groups"];
+        const auto groups = TexturesLoading::list["groups"];
         setMinWidth(150);
         if (UI::BeginCombo("##textureGroups", selectedGroup)) {
                 for (uint i = 0; i < groups.Length; i++) {
@@ -70,10 +75,10 @@ namespace TextureSettings {
         UI::EndTable();
         
         UI::BeginTable("materials", 3, UI::TableFlags::SizingStretchSame);
-        auto materialsList = ModWorkLoading::list["materials"].GetKeys();
+        auto materialsList = TexturesLoading::list["materials"].GetKeys();
         uint count = 0;
         for(uint i = 0; i < materialsList.Length; i++) {
-            auto currentMaterial = ModWorkLoading::list["materials"][materialsList[i]];
+            auto currentMaterial = TexturesLoading::list["materials"][materialsList[i]];
             Json::Value materialGroups = currentMaterial["groups"];
             bool isCorrectGroup = false;
             for(uint j = 0; j < materialGroups.Length; j++) {
@@ -122,13 +127,19 @@ namespace TextureSettings {
                 UI::TableNextRow();
                 UI::TableNextColumn();
                 
-                if(DynamicButton("Apply##"+materialsList[i])) {
+                bool canApply = CanApplyPreset(presetsAvailable[currentPreset]);
+                if(DynamicButton("Apply##"+materialsList[i], vec2(), !canApply)) {
                     enablePlugin = true;
-                    ModWorkLoading::oldSettings = Json::Parse(selectedModWorks);
+                    TexturesLoading::oldSettings = Json::Parse(selectedModWorks);
                     auto currentModWorks = Json::Parse(selectedModWorks);
                     currentModWorks[materialsList[i]] = presets[materialsList[i]];
                     selectedModWorks = Json::Write(currentModWorks);
-                    ModWorkLoading::updateOne = materialsList[i];
+                    TexturesLoading::updateOne = materialsList[i];
+                }
+                if(!canApply) {
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::TextWrapped(Icons::ExclamationTriangle + " This preset is only available if you use the ModWork method.");
                 }
                 UI::TableNextRow();
                 UI::TableNextColumn();

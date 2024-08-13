@@ -1,5 +1,5 @@
-namespace ModWorkLoading {
-    bool displayModWorkLoading = false;
+namespace TexturesLoading {
+    bool displayTexturesLoading = false;
     string currentMaterial = "";
     string currentFile = "";
     int progress = 0;
@@ -8,6 +8,7 @@ namespace ModWorkLoading {
 
     Json::Value oldSettings = Json::Value();
     bool updateAll = false;
+    bool updateAllSilent = false;
     array<string> hasPreviousTextures = {};
 
     string updateOne = "";
@@ -16,16 +17,20 @@ namespace ModWorkLoading {
     /*
         Update all textures
     */
-    void UpdateAll() {
-        hasPreviousTextures = {};
-        EnableModwork();
+    void UpdateAll(bool isSilent = false) {
         updateAll = false;
+        hasPreviousTextures = {};
+        ModWorkManager::EnableModwork();
+        if(updateAllSilent) {
+            isSilent = true;
+            updateAllSilent = false;
+        }
         auto oldKeys = oldSettings.GetKeys();
         for(uint i = 0; i<oldKeys.Length; i++) {
             string oldMaterial = oldKeys[i];
             string oldPreset = oldSettings[oldKeys[i]];
             auto files = list["materials"][oldMaterial]["presets"][oldPreset]["files"];
-            if(RemoveTexture(files)) {
+            if(ModWorkManager::RemoveTexture(files)) {
                 hasPreviousTextures.InsertLast(oldMaterial);
             }
         }
@@ -36,7 +41,7 @@ namespace ModWorkLoading {
             string material = keys[i];
             string preset = currentSettings[keys[i]];
             auto files = list["materials"][material]["presets"][preset]["files"];
-            ApplyTexture(textureQuality, material, preset, files, i == length - 1);
+            ApplyTexture(textureQuality, material, preset, files, i == length - 1, isSilent);
         }
     }
 
@@ -44,13 +49,13 @@ namespace ModWorkLoading {
         Update one specific material related textures
     */
     void UpdateOne() {
-        EnableModwork();
         hasPreviousTextures = {};
         string materialToUpdate = updateOne;
         updateOne = "";
+        ModWorkManager::EnableModwork();
         string oldPreset = oldSettings[materialToUpdate];
         auto files = list["materials"][materialToUpdate]["presets"][oldPreset]["files"];
-        if(RemoveTexture(files)) {
+        if(ModWorkManager::RemoveTexture(files)) {
             hasPreviousTextures.InsertLast(materialToUpdate);
         }
         auto currentSettings = Json::Parse(selectedModWorks);
@@ -64,7 +69,7 @@ namespace ModWorkLoading {
     */
     Json::Value GetList() {
         if(list.Length == 0) {
-            auto listTmp = API::GetAsyncJson(BASE_URL + "json/1.1.0.json");
+            auto listTmp = API::GetAsyncJson(BASE_URL + "json/2.0.0.json");
             if(listTmp.GetType() != Json::Type::Object) {
                 error("Error while connecting to the API");
                 UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Error", "An unexpected error occured while fetching the API. Try reloading the plugin. If the error persists, open an issue or DM racacax on Discord", UI::HSV(1.0, 1.0, 1.0), 16000);
@@ -78,68 +83,67 @@ namespace ModWorkLoading {
     /*
         Download texture file and putting it in the ModWork folder
     */
-    void DownloadTexture(const string &in quality, const string &in material, const string &in preset, const string &in file) {
+    void DownloadTexture(const string &in quality, const string &in material, const string &in preset, const string &in file, const bool &in useCacheOnly = false) {
         string cachedFile = API::GetCachedAsync(
-            BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file);
+            BASE_URL + "ModWork/" + quality + "/" + material + "/" + preset + "/" + file, useCacheOnly);
+        if(cachedFile == "") {
+            warn("No cache for file " + file +", skipping...");
+            return;
+        }
 
-        CopyFile(cachedFile, GetCurrentFolder() + "/" + file);
+        if(modMethod == "Modless") {
+            ModlessManager::SetTexture(cachedFile, file);
+        } else if(modMethod == "ModWork") { 
+            CopyFile(cachedFile, ModWorkManager::GetCurrentFolder() + "/" + file); 
+        }
     }
 
     /*
         Download all files related to material and apply them by putting them in the ModWork folder
     */
-    void ApplyTexture(const string &in quality, const string &in material, const string &in preset, Json::Value files, bool changeRestartPromptStatus = true) {
-        displayModWorkLoading = true;
+    void ApplyTexture(const string &in quality, const string &in material, const string &in preset, Json::Value files, bool changeRestartPromptStatus = true, bool isSilent = false) {
+        displayTexturesLoading = true && !isSilent;
         total = files.Length;
         currentMaterial = material; 
         for(uint i = 0; i < files.Length; i++) {
             progress = i +1;
             currentFile = string(files[i]);
-            const string path = GetCurrentFolder() + "/" + currentFile;
+            const string path = ModWorkManager::GetCurrentFolder() + "/" + currentFile;
             // If preset is Default, we don't download any texture, unless custom textures were applied before
-            if(preset != "Default" || hasPreviousTextures.Find(material) > -1) {
-                IO::Delete(path);
-                DownloadTexture(quality, material, preset, currentFile);
+            if((preset != "Default" || (modMethod == "Modless" && !isSilent)) || hasPreviousTextures.Find(material) > -1) {
+                if(modMethod == "ModWork") {
+                    IO::Delete(path);
+                }
+                DownloadTexture(quality, material, preset, currentFile, isSilent);
             }   
         }
-        if(bool(GetList()["materials"][currentMaterial]["is-wood"])) {
-            for(uint i = 0; i < files.Length; i++) {
-                progress = i +1;
-                currentFile = string(files[i]);
-                if(currentFile.Contains('_OldWood') && woodTexture == "old") {
-                    const string baseFile = currentFile.Replace('_OldWood', "");
-                    ModWorkLoading::ExchangeFiles(baseFile, currentFile);
-                } else if(currentFile.Contains('_NewWood') && woodTexture == "new") {
-                    const string baseFile = currentFile.Replace('_NewWood', "");
-                    ModWorkLoading::ExchangeFiles(baseFile, currentFile);
-                } 
+
+        /* Managing old/new wood textures is only available with the ModWork method */
+        if(modMethod == "ModWork") {
+            if(bool(GetList()["materials"][currentMaterial]["is-wood"])) {
+                for(uint i = 0; i < files.Length; i++) {
+                    progress = i +1;
+                    currentFile = string(files[i]);
+                    if(currentFile.Contains('_OldWood') && woodTexture == "old") {
+                        const string baseFile = currentFile.Replace('_OldWood', "");
+                        TexturesLoading::ExchangeFiles(baseFile, currentFile);
+                    } else if(currentFile.Contains('_NewWood') && woodTexture == "new") {
+                        const string baseFile = currentFile.Replace('_NewWood', "");
+                        TexturesLoading::ExchangeFiles(baseFile, currentFile);
+                    } 
+                }
             }
         }
-        displayModWorkLoading = false;
+        
+        displayTexturesLoading = false;
         
         auto app = cast<CTrackMania>(GetApp());
         if(app.RootMap !is null && changeRestartPromptStatus) {
-            RestartPrompt::displayRestartPrompt = true;
+            RestartPrompt::displayRestartPrompt = true && !isSilent;
+        } else if(!isSilent && modMethod == "Modless") {  
+            startnew(ModlessManager::ReloadMap);
         }
-    }
-
-    /*
-        Delete texture files
-    */
-    bool RemoveTexture(Json::Value files, bool withAlerts = false) {
-        bool hasDeletedTextures = false;
-        for(uint i = 0; i < files.Length; i++) {
-            const string fileName = string(files[i]);
-            const string path = GetCurrentFolder() + "/" + fileName;
-            if(IO::FileExists(path)) {
-                if(withAlerts) {
-                  UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - Texture deleted", fileName + " has been deleted.", UI::HSV(0.51, 0.69, 0.9), 8000);  
-                }
-                IO::Delete(path);
-                hasDeletedTextures = true; // Notify there were indeed previous textures
-            }
-        }
-        return hasDeletedTextures;
+        
     }
     
     /*
@@ -172,8 +176,8 @@ namespace ModWorkLoading {
     */
     void ExchangeFiles(const string file1, const string file2) {
         trace('Exchanging '+ file1 + " and " + file2);
-        const string fullFile1 = GetCurrentFolder() + "/" + file1;
-        const string fullFile2 = GetCurrentFolder() + "/" + file2;
+        const string fullFile1 = ModWorkManager::GetCurrentFolder() + "/" + file1;
+        const string fullFile2 = ModWorkManager::GetCurrentFolder() + "/" + file2;
         IO::Move(fullFile1, fullFile2 + "_tmp");
         IO::Move(fullFile2, fullFile1);
         IO::Move(fullFile2 + "_tmp", fullFile2);
