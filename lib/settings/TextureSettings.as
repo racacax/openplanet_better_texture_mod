@@ -20,7 +20,7 @@ namespace TextureSettings {
         }
         TexturesLoading::reloadModWorkPictures = true;
         if(!IsSafeToApply()) {
-            UI::TextWrapped(ColoredString("$F93" + Icons::ExclamationTriangle + 
+            UI::TextWrapped(Text::OpenplanetFormatCodes("$F93" + Icons::ExclamationTriangle + 
             " As a safety measure, you cannot apply textures while in a map if you use the Modless method. "
             "Leave the map to change textures."));
         }

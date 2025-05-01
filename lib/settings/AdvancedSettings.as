@@ -46,7 +46,7 @@ namespace AdvancedSettings {
                 UI::ShowNotification(Icons::Kenney::TimesCircle + " Better Texture Mod - ModWork folder deleted", "ModWork folder has been deleted and plugin will be Modless after restart.", UI::HSV(0.51, 0.69, 0.9), 8000);       
             }
             UI::TextWrapped("Modless method allows you to have plugin textures alongside custom mods. However you will not be able to use new wood/old wood texures presets. Keep in mind any texture of a custom mod will override its corresponding texture in the plugin !\n"
-            + ColoredString("$F93" + Icons::ExclamationTriangle + " A full game restart is required to enable Modless support.")); 
+            + Text::OpenplanetFormatCodes("$F93" + Icons::ExclamationTriangle + " A full game restart is required to enable Modless support.")); 
             UI::Separator(); 
 
             if(isActive) {

@@ -109,12 +109,14 @@ namespace ModlessManager {
         bool folderExists = IO::FolderExists(MODWORK_FOLDER);
         if(!folderExists) {    
             IO::CreateFolder(MODWORK_FOLDER); // Creating a ModWork folder allow textures to refresh. Weird flex but OK
+            hasTriggeredModWorkFolderCreation = true;
         }
         while(!IsInAMap()) { yield(); }
         sleep(4000); // to be sure the textures were indeed loaded
         auto app = cast<CTrackMania>(GetApp());
-        if(ModWorkManager::IsModWorkBTMOnly()) { // If folder existed previously, it means there was custom modwork already and we don't need to load the map twice
+        if(ModWorkManager::IsModWorkBTMOnly() && hasTriggeredModWorkFolderCreation) { // If folder existed previously, it means there was custom modwork already and we don't need to load the map twice
             IO::DeleteFolder(MODWORK_FOLDER, true);
+            hasTriggeredModWorkFolderCreation = false;
             if(app.RootMap.ModPackDesc !is null) { // we only need to reload twice if map has a mod
                 MapLoading::ReloadMap();
             }

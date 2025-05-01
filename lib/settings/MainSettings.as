@@ -36,7 +36,7 @@ namespace MainSettings {
                 UI::BeginTooltip();
                 UI::Text("Will automatically reload map when switching from a map with a mod to a map without a mod (and vice versa).\n"
                 "Only works if you chose to disable plugin when map has a mod.\n"+
-                ColoredString("$F93It is not recommended to use this setting if you are likely to join servers that are full within a second\n"
+                Text::OpenplanetFormatCodes("$F93It is not recommended to use this setting if you are likely to join servers that are full within a second\n"
                 "(e.g. Spammiej Of The Day)."));
                 UI::EndTooltip();
             }

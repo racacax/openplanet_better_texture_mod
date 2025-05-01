@@ -78,8 +78,15 @@ void InitPlugin() {
         ModWorkManager::EnableModwork();
     }
      Json::Value data = TexturesLoading::GetList();
-     if(modMethod == "Modless" && ModWorkManager::IsModWorkBTMOnly()) { // Might happen if we apply textures and then not go into a map before closing the game
-        IO::DeleteFolder(MODWORK_FOLDER, true);
+     if(modMethod == "Modless" && IO::FolderExists(MODWORK_FOLDER)) {
+        if(ModWorkManager::IsModWorkBTMOnly() && hasTriggeredModWorkFolderCreation) { // Might happen if we apply textures and then not go into a map before closing the game
+            hasTriggeredModWorkFolderCreation = false;
+            IO::DeleteFolder(MODWORK_FOLDER, true);
+        } else {
+            UI::ShowNotification("Better Texture Mod - ModWork folder exists", 
+                        "ModWork folder exists and it doesn't seem it has been created by plugin. "
+                        "Plugin textures might not appear correctly. Please consider deleting/renaming it.", 8000);      
+        }
      }
      if(data.Length > 0) {
         const string signature = data["signature"];

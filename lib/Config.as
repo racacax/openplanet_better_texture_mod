@@ -36,3 +36,6 @@ string modMethod = "ModWork";
 
 [Setting category="Main" hidden name="Disable next boot" description="Disable plugin on next boot (most likely if game crash)"]
 bool disablePluginNextBoot = false;
+
+[Setting category="Main" hidden name="Has triggered ModWork creation" description="Indicates if last ModWork folder creation was done by plugin"]
+bool hasTriggeredModWorkFolderCreation = false;

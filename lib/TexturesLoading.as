@@ -103,6 +103,7 @@ namespace TexturesLoading {
     */
     void ApplyTexture(const string &in quality, const string &in material, const string &in preset, Json::Value files, bool changeRestartPromptStatus = true, bool isSilent = false) {
         displayTexturesLoading = true && !isSilent;
+        RestartPrompt::displayRestartPrompt = false;
         total = files.Length;
         currentMaterial = material; 
         for(uint i = 0; i < files.Length; i++) {

@@ -74,7 +74,7 @@ void Render() {
 			UI::SetNextWindowSize(600, 600);
 			if(UI::Begin("Better Texture Mod - Settings", togglePlugin, UI::WindowFlags::NoCollapse)) {	
 				if(!ModlessManager::hasLoadedFids && modMethod == "Modless") {
-					UI::TextWrapped(ColoredString("$F93The plugin has not been able to load ressources. You need to restart the whole game or switch to ModWork."));
+					UI::TextWrapped(Text::OpenplanetFormatCodes("$F93The plugin has not been able to load ressources. You need to restart the whole game or switch to ModWork."));
 				}
 				UI::BeginTabBar("betterTextureModSettings");
 				if(UI::BeginTabItem(Icons::Cogs + " Main##betterTextureMod")) {
