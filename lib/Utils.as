@@ -88,6 +88,7 @@ void InitPlugin() {
                         "Plugin textures might not appear correctly. Please consider deleting/renaming it.", 8000);      
         }
      }
+     hasTriggeredModWorkFolderCreation = false;
      if(data.Length > 0) {
         const string signature = data["signature"];
         if(signature != listSignature) {
