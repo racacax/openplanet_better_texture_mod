@@ -117,7 +117,13 @@ namespace TexturesLoading {
             // If preset is Default, we don't download any texture, unless custom textures were applied before
             if((preset != "Default" || (modMethod == "Modless" && !isSilent)) || hasPreviousTextures.Find(material) > -1) {
                 if(modMethod == "ModWork") {
-                    IO::Delete(path);
+                    trace("Full file path: " + path);
+                    if (IO::FileExists(path)) {
+                        IO::Delete(path);
+                        trace("[Delete] Removed: " + path);
+                    } else {
+                        warn("[Delete] File not found, skipping: " + path);
+                    }
                 }
                 DownloadTexture(quality, material, preset, currentFile, isSilent);
             }
