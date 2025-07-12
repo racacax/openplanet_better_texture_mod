@@ -14,6 +14,10 @@ namespace TexturesLoading {
     string updateOne = "";
     bool reloadModWorkPictures = false;
 
+    string NormalizePath(const string &in path) {
+        return path.Replace("\\", "/");
+    }
+
     /*
         Update all textures
     */
@@ -93,8 +97,8 @@ namespace TexturesLoading {
 
         if(modMethod == "Modless") {
             ModlessManager::SetTexture(cachedFile, file);
-        } else if(modMethod == "ModWork") { 
-            CopyFile(cachedFile, ModWorkManager::GetCurrentFolder() + "/" + file); 
+        } else if(modMethod == "ModWork") {
+            CopyFile(cachedFile, ModWorkManager::GetCurrentFolder() + "/" + file);
         }
     }
 
@@ -105,18 +109,24 @@ namespace TexturesLoading {
         displayTexturesLoading = true && !isSilent;
         RestartPrompt::displayRestartPrompt = false;
         total = files.Length;
-        currentMaterial = material; 
+        currentMaterial = material;
         for(uint i = 0; i < files.Length; i++) {
             progress = i +1;
             currentFile = string(files[i]);
-            const string path = ModWorkManager::GetCurrentFolder() + "/" + currentFile;
+            const string path = NormalizePath(ModWorkManager::GetCurrentFolder() + "/" + currentFile);
             // If preset is Default, we don't download any texture, unless custom textures were applied before
             if((preset != "Default" || (modMethod == "Modless" && !isSilent)) || hasPreviousTextures.Find(material) > -1) {
                 if(modMethod == "ModWork") {
-                    IO::Delete(path);
+                    trace("Full file path: " + path);
+                    if (IO::FileExists(path)) {
+                        IO::Delete(path);
+                        trace("[Delete] Removed: " + path);
+                    } else {
+                        warn("[Delete] File not found, skipping: " + path);
+                    }
                 }
                 DownloadTexture(quality, material, preset, currentFile, isSilent);
-            }   
+            }
         }
 
         /* Managing old/new wood textures is only available with the ModWork method */
@@ -131,22 +141,22 @@ namespace TexturesLoading {
                     } else if(currentFile.Contains('_NewWood') && woodTexture == "new") {
                         const string baseFile = currentFile.Replace('_NewWood', "");
                         TexturesLoading::ExchangeFiles(baseFile, currentFile);
-                    } 
+                    }
                 }
             }
         }
-        
+
         displayTexturesLoading = false;
-        
+
         auto app = cast<CTrackMania>(GetApp());
         if(app.RootMap !is null && changeRestartPromptStatus) {
             RestartPrompt::displayRestartPrompt = true && !isSilent;
-        } else if(!isSilent && modMethod == "Modless") {  
+        } else if(!isSilent && modMethod == "Modless") {
             startnew(ModlessManager::ReloadMap);
         }
-        
+
     }
-    
+
     /*
         Render view to let the user know about texture download status
     */
