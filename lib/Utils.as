@@ -32,7 +32,9 @@ void MoveFolder(const string &in from, const string &in to) {
             IO::Move(files[i], to + files[i].Split(from)[1]);
         }
 	}
-   IO::DeleteFolder(from);
+    if(IO::FolderExists(from)) {
+        IO::DeleteFolder(from);
+    }
 }
 
 void CopyFile(const string &in from, const string &in to) {
@@ -154,7 +156,9 @@ void DeleteDefaultTextures() {
 
 /* Delete all textures in the plugin Cache storage */
 void DeleteCachedTextures() {
+    if(IO::FolderExists(CACHE_FOLDER)) {
      IO::DeleteFolder(CACHE_FOLDER, true);
+    }
 }
 
 void setMinWidth(int width) {
