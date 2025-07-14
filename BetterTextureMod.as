@@ -16,9 +16,9 @@ void Main() {
 		UI::HSV(1.0, 1.0, 1.0), 8000);
 	}
 	InitPlugin();
-	Meta::PluginCoroutine@ updateAllThread = null;
-	Meta::PluginCoroutine@ updateOneThread = null;
-	Meta::PluginCoroutine@ reloadModWorkPicturesThread = null;
+	awaitable@ updateAllThread = null;
+	awaitable@ updateOneThread = null;
+	awaitable@ reloadModWorkPicturesThread = null;
 	while(true) {
 		if(enablePlugin) {
 			try {
